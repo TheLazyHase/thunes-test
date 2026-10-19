@@ -21,11 +21,14 @@ func NewService(r Repo) (Service, error) {
 
 func (s *service) Login(ctx context.Context, username, password string) (*User, error) {
 	user, err := s.repo.GetByUserName(ctx, username)
+	//Security : we should mask the cause of the failure to the client entirely
+	//TODO: once we have robust logging, actually log the error
+	maskedError := fmt.Errorf("Inexistant user or wrong password")
 	if err != nil {
-		return nil, fmt.Errorf("Inexistant user")
+		return nil, maskedError
 	}
 	if user.Password != password {
-		return nil, fmt.Errorf("Wrong password")
+		return nil, maskedError
 	}
 	return user, nil
 }
